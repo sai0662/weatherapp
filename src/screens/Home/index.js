@@ -1,54 +1,143 @@
-import { useEffect, useState } from "react";
-import './home.css'
+import React, { useState, useEffect } from "react";
+import './home.css';
 
-const favCitys = [
-  {
-    id: 1,
-    city: 'Delhi',
-    temp: "29°C",
-  },
-  {
-    id: 2,
-    city: 'Tirupati',
-    temp: "29°C",
-  },
-  {
-    id: 3,
-    city: 'Mumbai',
-    temp: "30°C",
-  }
-]
+const baseUrl = "https://api.openweathermap.org/data/2.5/weather?q=";
 
-function Home() {
-  const [cityTemp, setCityTemp] = useState('hyderabad');
+const apiKeyId = "d885aa1d783fd13a55050afeef620fcb";
 
-  useEffect(() => {
-    fetch(`https://api.openweathermap.org/data/2.5/weather?q=${cityTemp}&appid=d885aa1d783fd13a55050afeef620fcb`)
-    .then(res => res.json())
-    .then(response => {
-      const kelvin = response.main.temp;
-      const celsius = kelvin - 273.15;
-      setCityTemp("Temperature at "+cityTemp+" "+Math.round(celsius)+"°C");
-    })
-  }, [])
+const languageMetrics = "&lang=PT&units=metric";
 
-  return (
-    <div>
-      <h1>{cityTemp}</h1>
-      <div className="fav-header">
-        <h1>Favorite Locations</h1>
-      </div>
-      <div className="list">
-        {
-          favCitys.map((item,index) => (
-            <div className="list-view"> 
-              <h1>{item.city} {item.temp}</h1>
-            </div>
-          ))
+const Home = () => {
+
+    const [cityName, setCityName] = useState("Hyderabad");
+
+    const [weatherData, setWeatherData] = useState([]);
+
+    const [searchValue, setSearchValue] = useState("");
+
+    const [weatherList, setWeatherList] = useState([]);
+
+    const [favouritesList, setFavouritesList] = useState([]);
+
+    const changeHandler = (e) => {
+        setSearchValue(e.target.value);
+    }
+
+    const fetchData = async (cityName) => {
+        const tempetatureData = await fetch(baseUrl + cityName + '&appid=' + apiKeyId + '&' + languageMetrics).then(res => res.json());
+        setWeatherData(tempetatureData);
+        if (tempetatureData.cod === 200) {
+            setCityName(tempetatureData.name);
+            const weatherInfo = {
+                cityName: tempetatureData.name,
+                temp: tempetatureData.main.temp
+            }
+            setWeatherList([...weatherList, weatherInfo]);
+        } else {
+            setWeatherData({});
         }
-      </div>
-    </div>
-  );
+    };
+
+    useEffect(() => {
+        fetchData(cityName);
+    }, []);
+
+    const onSearchWeatherInfo = (e) => {
+        e.preventDefault();
+        const isCityNameExists = weatherList.find((item) => item.cityName.toLowerCase() === searchValue.toLowerCase());
+        if (isCityNameExists) {
+            alert("City name already exists");
+            return;
+        }
+        fetchData(searchValue);
+    }
+
+    const onAddFavorite = (weather) => {
+        setFavouritesList([...favouritesList, weather]);
+    }
+
+    const onRemoveFavorite = (weather) => {
+        setFavouritesList(favouritesList.filter((item) => item.cityName !== weather.cityName));
+    }
+
+    const showWeatherInfo = () => {
+        if (weatherData.cod === 200) {
+            return (
+                <div style={{display: 'flex'}}>
+                <div>
+                    <h1 className="cityName">{cityName}</h1>
+                    <h1 className="cityName">{Math.round(weatherData?.main?.temp || 0)}°C</h1>
+                </div>
+                <div className="imageIcon">
+                <img src={`http://openweathermap.org/img/w/${weatherData?.weather[0]?.icon}.png`} alt="weather icon" />
+                </div>
+                </div>
+            )
+        } else {
+            return (
+                <div>
+                    <h1>City name not found</h1>
+                </div>
+            )
+        }
+    }
+
+    const renderFavoriteList = () => {
+        return (
+            <div>
+                <h1>Favourites list</h1>
+                {favouritesList.length === 0 && <p>No favourites added</p>}
+                <ul className="allHisList">
+                    {favouritesList.map((weather, index) => {
+                        const { cityName, temp } = weather;
+                        return (
+                            <li className="singleFavList" key={index}>{cityName} {Math.round(temp || 0)} C <button className="favButton" onClick={() => onRemoveFavorite(weather)}>Remove from favourites</button></li>
+                        )
+                    })}
+                </ul>
+            </div>
+        )
+    }
+
+    const renderHistoryList = () => {
+        return (
+            <div>
+                <h1>Search History</h1>
+                <ul className="allHisList">
+
+                    {weatherList.map((weather, index) => {
+                        const { cityName, temp } = weather;
+                        const isFacvouriteExists = favouritesList.find((item) => item.cityName === cityName);
+                        return (
+                            <li className="singleList" key={index}>{cityName} {Math.round(temp || 0)} C <button className="favButton" disabled={isFacvouriteExists} onClick={() => onAddFavorite(weather)}>Add to Favouites</button></li>
+                        )
+                    })}
+                </ul>
+            </div>
+        )
+    }
+
+    return (
+        <div style={{backgroundColor: "white", width: '100%', height: 500, flexDirection: 'row', display: "flex", marginLeft: 120}}>
+            <div style={{backgroundColor: "aliceblue", width: '40%', height: 500, marginTop: 80}}>
+                        <form onSubmit={onSearchWeatherInfo} className="form">
+                             <input type="text" name="city" placeholder="Search for cities" onChange={changeHandler} className="search"/><br /><br />
+                             <button type="submit">Search</button>
+                         </form>
+                         <div>
+                            {
+                                showWeatherInfo()
+                            }
+                         </div>
+                         <div>
+                         {renderHistoryList()}
+                         </div>
+            </div>
+            <div style={{backgroundColor: "aliceblue", width: '40%', height: 500, marginTop: 80, marginLeft: 50}}>
+                    {renderFavoriteList()}
+            </div>
+        </div>
+    )
 }
 
 export default Home;

@@ -1,15 +1,72 @@
-.list{
+.card{
+    border: 2px black;
+}
+
+.card-body{
     border: 1px black;
     background-color: aliceblue;
     width: 40%;
-    height: 250px;
-    margin-left: 400px;
+    height: 350px;
 }
 
-.list-view{
+input[type="submit"]{
+    background-color: aliceblue;
+    border-radius: 3px;
+    padding: 5px;
+}
+
+input[type="text"]{
+    border-radius: 3px;
+    padding:10px;
+    border-radius: 10px;
+  }
+
+.fav-list{
+    flex-direction: 'row';
+}
+
+.search{
+    border: 0px;
+    width: 80%;
+    background-color: white;
+}
+
+.form{
+    margin-top: 20px;
+}
+
+.cityName{
+    margin-left: 60px;
+}
+
+.imageIcon{
+    margin-left: 160px;
     margin-top: 50px;
 }
 
-.fav-header{ 
-    
+.allHisList{
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    flex: 1;
+}
+
+.singleList{
+    border-radius: 50px;
+    margin: 6px;
+    background-color: #5dadf8;
+    padding: 10px 10px;
+}
+
+.singleFavList{
+    border-radius: 50px;
+    margin: 6px;
+    background-color: #5dadf8;
+    padding: 10px 10px;
+}
+
+.favButton{
+    margin-left: 200px;
+    border: none;
+    border-radius: 10px;
 }
