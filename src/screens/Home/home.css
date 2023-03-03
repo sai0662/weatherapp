@@ -1,0 +1,15 @@
+.list{
+    border: 1px black;
+    background-color: aliceblue;
+    width: 40%;
+    height: 250px;
+    margin-left: 400px;
+}
+
+.list-view{
+    margin-top: 50px;
+}
+
+.fav-header{ 
+    
+}
